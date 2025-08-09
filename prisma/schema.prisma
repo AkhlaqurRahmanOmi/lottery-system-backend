@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id             Int       @id @default(autoincrement())
+  username       String    @unique
+  email          String    @unique
+  passwordHash   String
+  role           AdminRole @default(ADMIN)
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  lastLogin      DateTime?
+  createdCoupons Coupon[]  @relation("CreatedBy")
+
+  @@index([username])
+  @@index([email])
+  @@map("admins")
+}
+
+model Coupon {
+  id               Int              @id @default(autoincrement())
+  couponCode       String           @unique
+  batchId          String?
+  codeLength       Int              @default(10)
+  status           CouponStatus     @default(ACTIVE)
+  createdBy        Int
+  createdAt        DateTime         @default(now())
+  expiresAt        DateTime?
+  redeemedAt       DateTime?
+  redeemedBy       Int?
+  generationMethod GenerationMethod @default(SINGLE)
+  metadata         Json?
+  creator          Admin            @relation("CreatedBy", fields: [createdBy], references: [id])
+  submission       Submission?      @relation("RedeemedCoupon")
+
+  @@index([couponCode])
+  @@index([status])
+  @@index([batchId])
+  @@index([createdBy])
+  @@index([expiresAt])
+  @@map("coupons")
+}
+
+model Submission {
+  id                Int      @id @default(autoincrement())
+  couponId          Int      @unique
+  name              String
+  email             String
+  phone             String
+  address           String
+  productExperience String
+  selectedRewardId  Int
+  submittedAt       DateTime @default(now())
+  ipAddress         String?
+  userAgent         String?
+  additionalData    Json?
+  coupon            Coupon   @relation("RedeemedCoupon", fields: [couponId], references: [id])
+  selectedReward    Reward   @relation("SelectedReward", fields: [selectedRewardId], references: [id])
+
+  @@index([couponId])
+  @@index([email])
+  @@index([selectedRewardId])
+  @@index([submittedAt])
+  @@map("user_submissions")
+}
+
+model Reward {
+  id           Int          @id @default(autoincrement())
+  name         String
+  description  String?
+  imageUrl     String?
+  isActive     Boolean      @default(true)
+  displayOrder Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  submissions  Submission[] @relation("SelectedReward")
+
+  @@index([isActive])
+  @@index([displayOrder])
+  @@map("rewards")
+}
+
+model SystemConfig {
+  id          Int        @id @default(autoincrement())
+  configKey   String     @unique
+  configValue String
+  configType  ConfigType @default(STRING)
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([configKey])
+  @@map("system_configs")
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+}
+
+enum CouponStatus {
+  ACTIVE
+  REDEEMED
+  EXPIRED
+  DEACTIVATED
+}
+
+enum GenerationMethod {
+  SINGLE
+  BATCH
+}
+
+enum ConfigType {
+  STRING
+  NUMBER
+  BOOLEAN
+  JSON
+}
