@@ -38,7 +38,7 @@ export class CouponQueryRestDto extends CouponQueryDto {
   declare limit?: number;
 
   @ApiPropertyOptional({
-    description: 'Search term for coupon code (partial match)',
+    description: 'Search term for coupon code',
     example: 'ABC123',
     maxLength: 50
   })
@@ -49,7 +49,7 @@ export class CouponQueryRestDto extends CouponQueryDto {
   @ApiPropertyOptional({
     description: 'Filter by coupon status',
     enum: CouponStatus,
-    example: CouponStatus.ACTIVE
+    example: 'ACTIVE'
   })
   @IsOptional()
   @IsEnum(CouponStatus, { message: 'Status must be a valid CouponStatus' })
@@ -67,7 +67,7 @@ export class CouponQueryRestDto extends CouponQueryDto {
   @ApiPropertyOptional({
     description: 'Filter by generation method',
     enum: GenerationMethod,
-    example: GenerationMethod.BATCH
+    example: 'BATCH'
   })
   @IsOptional()
   @IsEnum(GenerationMethod, { message: 'Generation method must be a valid GenerationMethod' })

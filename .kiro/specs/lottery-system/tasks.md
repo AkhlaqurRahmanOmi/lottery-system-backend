@@ -116,7 +116,12 @@
     - Create export functionality for PDF and CSV
     - _Requirements: 3.1, 3.6, 3.7, 3.9, 5.1, 5.4, 5.5_
 
-  - [ ] 5.4 Create coupon DTOs for REST and GraphQL
+  - [x] 5.4 Create coupon DTOs for REST and GraphQL
+
+
+
+
+
 
 
 
@@ -132,7 +137,12 @@
     - Create response DTOs with batch information
     - _Requirements: 8.4, 8.6_
 
-  - [ ] 5.5 Implement coupon REST controller
+  - [x] 5.5 Implement coupon REST controller
+
+
+
+
+
 
     - Create endpoints for coupon generation and management
     - Add authentication guards for admin operations
@@ -140,7 +150,12 @@
     - Add proper error handling and responses
     - _Requirements: 3.9, 5.1, 5.3, 8.1, 8.4_
 
-  - [ ] 5.6 Implement coupon GraphQL resolver
+  - [x] 5.6 Implement coupon GraphQL resolver
+
+
+
+
+
     - Create GraphQL mutations for coupon generation
     - Implement GraphQL queries for coupon management
     - Add real-time subscriptions for coupon updates
@@ -148,28 +163,51 @@
 
 - [ ] 6. Implement reward management module
 
-  - [ ] 6.1 Create reward entity and repository
+  - [x] 6.1 Create reward entity and repository
+
+
+
+
+
 
     - Implement reward repository with CRUD operations
     - Create database queries for reward management
     - Add proper indexing and ordering functionality
     - _Requirements: 7.1, 7.2, 7.3, 9.1_
 
-  - [ ] 6.2 Create reward service with business logic
+  - [x] 6.2 Create reward service with business logic
+
+
+
+
+
 
     - Implement reward creation, update, and deactivation
     - Add reward ordering and display logic
     - Implement active reward filtering
     - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
-  - [ ] 6.3 Create reward DTOs for REST and GraphQL
+  - [x] 6.3 Create reward DTOs for REST and GraphQL
+
+
+
+
+
+
+
+
 
     - Create reward management DTOs with validation
     - Implement response DTOs with proper structure
     - Create public DTOs for user-facing operations
     - _Requirements: 7.5, 8.4, 8.6_
 
-  - [ ] 6.4 Implement reward REST controller
+  - [x] 6.4 Implement reward REST controller
+
+
+
+
+
 
     - Create admin endpoints for reward management
     - Create public endpoint for active rewards
@@ -177,6 +215,10 @@
     - _Requirements: 7.1, 7.2, 8.1, 8.4_
 
   - [ ] 6.5 Implement reward GraphQL resolver
+
+
+
+
     - Create GraphQL operations for reward management
     - Implement public queries for active rewards
     - Add proper authorization for admin operations

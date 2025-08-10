@@ -1,6 +1,7 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import type { Admin } from '@prisma/client';
+// Use any type temporarily to avoid Prisma import issues
+type Admin = any;
 
 export const CurrentAdmin = createParamDecorator(
   (data: unknown, context: ExecutionContext): Admin => {

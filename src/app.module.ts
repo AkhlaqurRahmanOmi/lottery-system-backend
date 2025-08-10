@@ -10,8 +10,11 @@ import { UnitOfWork } from './shared/services/unit-of-work/unit-of-work.service'
 import { MonitoringModule } from './api/rest/monitoring/monitoring.module';
 import { AuthRestModule } from './api/rest/auth/auth.module';
 import { AdminRestModule } from './api/rest/admin/admin.module';
+import { CouponRestModule } from './api/rest/coupon/coupon.module';
+import { RewardRestModule } from './api/rest/reward/reward.module';
 import { AuthGraphQLModule } from './graphql/auth/auth-graphql.module';
 import { AdminGraphQLModule } from './graphql/admin/admin-graphql.module';
+import { CouponGraphQLModule } from './graphql/coupon/coupon-graphql.module';
 import { PrismaModule } from './core/config/prisma/prisma.module';
 import { winstonConfig } from './logger/winston.config';
 import { WinstonModule } from 'nest-winston';
@@ -32,8 +35,11 @@ import { LoggingConfigService } from './shared/services/logging-config.service';
     MonitoringModule,
     AuthRestModule,
     AdminRestModule,
+    CouponRestModule,
+    RewardRestModule,
     AuthGraphQLModule,
     AdminGraphQLModule,
+    CouponGraphQLModule,
     WinstonModule.forRoot(winstonConfig),
     PrismaModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({

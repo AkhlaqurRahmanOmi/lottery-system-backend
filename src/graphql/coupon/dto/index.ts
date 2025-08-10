@@ -13,3 +13,9 @@ export {
   GenerationMethod 
 } from '../../../modules/coupon/dto/coupon-base.dto';
 export * from '../../../modules/coupon/dto/coupon-response.dto';
+
+// Type aliases for cleaner imports
+export { CouponQueryGraphQLDto as CouponQueryGraphQLDto } from './coupon-query-graphql.dto';
+export { CouponValidationGraphQLDto as CouponValidationGraphQLDto, UpdateCouponStatusGraphQLDto } from './coupon-validation-graphql.dto';
+export { CouponExportGraphQLDto as CouponExportGraphQLDto } from './coupon-export-graphql.dto';
+export { BatchStatisticsQueryGraphQLDto as BatchManagementGraphQLDto } from './batch-management-graphql.dto';

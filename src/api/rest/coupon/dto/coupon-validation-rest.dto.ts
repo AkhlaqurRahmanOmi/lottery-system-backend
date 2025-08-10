@@ -21,34 +21,3 @@ export class CouponValidationRestDto {
   })
   couponCode: string;
 }
-
-/**
- * REST-specific DTO for batch operations
- */
-export class BatchOperationRestDto {
-  @ApiProperty({
-    description: 'Batch ID for the operation',
-    example: 'batch_summer2024_001',
-    maxLength: 100
-  })
-  @IsNotEmpty({ message: 'Batch ID is required' })
-  @IsString({ message: 'Batch ID must be a string' })
-  batchId: string;
-}
-
-/**
- * REST-specific DTO for coupon status update
- */
-export class UpdateCouponStatusRestDto {
-  @ApiProperty({
-    description: 'New status for the coupon',
-    enum: ['ACTIVE', 'DEACTIVATED'],
-    example: 'DEACTIVATED'
-  })
-  @IsNotEmpty({ message: 'Status is required' })
-  @IsString({ message: 'Status must be a string' })
-  @Matches(/^(ACTIVE|DEACTIVATED)$/, { 
-    message: 'Status must be either ACTIVE or DEACTIVATED' 
-  })
-  status: 'ACTIVE' | 'DEACTIVATED';
-}

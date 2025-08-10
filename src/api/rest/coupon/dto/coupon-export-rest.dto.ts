@@ -1,35 +1,27 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsEnum, IsString, IsArray, IsDateString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsEnum, IsString, IsDateString, IsBoolean } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { CouponExportOptionsDto, ExportFormat } from '../../../../modules/coupon/dto/coupon-export.dto';
 import { CouponStatus } from '../../../../modules/coupon/dto/coupon-base.dto';
 
 /**
- * Export format enum for REST API
- */
-export enum ExportFormat {
-  CSV = 'csv',
-  PDF = 'pdf',
-  EXCEL = 'excel'
-}
-
-/**
  * REST-specific DTO for exporting coupon data
+ * Extends the base CouponExportOptionsDto with REST-specific validation and documentation
  */
-export class CouponExportRestDto {
-  @ApiPropertyOptional({
+export class CouponExportRestDto extends CouponExportOptionsDto {
+  @ApiProperty({
     description: 'Export format',
     enum: ExportFormat,
     example: ExportFormat.CSV,
     default: ExportFormat.CSV
   })
-  @IsOptional()
-  @IsEnum(ExportFormat, { message: 'Format must be csv, pdf, or excel' })
-  format?: ExportFormat = ExportFormat.CSV;
+  @IsEnum(ExportFormat, { message: 'Format must be csv or pdf' })
+  declare format: ExportFormat;
 
   @ApiPropertyOptional({
     description: 'Filter by coupon status',
     enum: CouponStatus,
-    example: CouponStatus.ACTIVE
+    example: 'ACTIVE'
   })
   @IsOptional()
   @IsEnum(CouponStatus, { message: 'Status must be a valid CouponStatus' })
@@ -61,17 +53,6 @@ export class CouponExportRestDto {
   @IsOptional()
   @IsDateString({}, { message: 'Created to must be a valid ISO date string' })
   createdTo?: string;
-
-  @ApiPropertyOptional({
-    description: 'Specific coupon codes to export (comma-separated)',
-    example: 'ABC123XYZ9,DEF456UVW8',
-    type: 'string'
-  })
-  @IsOptional()
-  @Transform(({ value }) => typeof value === 'string' ? value.split(',').map(s => s.trim()) : value)
-  @IsArray({ message: 'Coupon codes must be an array' })
-  @IsString({ each: true, message: 'Each coupon code must be a string' })
-  couponCodes?: string[];
 
   @ApiPropertyOptional({
     description: 'Include batch information in export',

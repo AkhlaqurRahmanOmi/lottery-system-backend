@@ -11,7 +11,8 @@ import {
   LogoutResponseDto,
   AdminProfileDto,
 } from '../../modules/auth/dto';
-import type { Admin } from '@prisma/client';
+// Use any type temporarily to avoid Prisma import issues
+type Admin = any;
 
 @Resolver()
 export class AuthResolver {
