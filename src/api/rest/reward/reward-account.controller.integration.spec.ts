@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, HttpStatus } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../../app.module';
-import { PrismaService } from '../../../core/config/prisma/prisma.ser;
+import { PrismaService } from '../../../core/config/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { RewardCategory, RewardStatus, AdminRole } from '@prisma/client';
 

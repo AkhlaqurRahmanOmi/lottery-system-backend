@@ -4,19 +4,19 @@ import type { Admin, Prisma, AdminRole } from '@prisma/client';
 import { AdminQueryDto, PaginatedAdminResponseDto } from './dto';
 
 export interface AdminSearchFilters {
-  search?: string;
-  role?: AdminRole;
-  isActive?: boolean;
+    search?: string;
+    role?: AdminRole;
+    isActive?: boolean;
 }
 
 export interface AdminSortOptions {
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
 }
 
 export interface AdminPaginationOptions {
-  page?: number;
-  limit?: number;
+    page?: number;
+    limit?: number;
 }
 
 @Injectable()
@@ -107,7 +107,7 @@ export class AdminRepository {
             if (data.username || data.email) {
                 const username = (data.username as string) || existingAdmin.username;
                 const email = (data.email as string) || existingAdmin.email;
-                
+
                 const conflicts = await this.existsByUsernameOrEmail(username, email, id);
                 if (conflicts) {
                     throw new ConflictException('Admin with this username or email already exists');
@@ -208,7 +208,7 @@ export class AdminRepository {
      */
     async findWithFilters(queryDto: AdminQueryDto): Promise<PaginatedAdminResponseDto> {
         const { page = 1, limit = 10, search, role, isActive, sortBy = 'createdAt', sortOrder = 'desc' } = queryDto;
-        
+
         // Build where clause
         const where: Prisma.AdminWhereInput = {};
 

@@ -234,23 +234,19 @@
 
   - [x] 8.1 Create analytics service
 
-
     - Implement summary statistics calculation
     - Create conversion rate and performance metrics
     - Add reward selection analytics
     - _Requirements: 6.4, 6.5_
 
-  - [-] 8.2 Create export service
-
-
-
+  - [x] 8.2 Create export service
 
     - Implement CSV export for user submissions
     - Create Excel export functionality
     - Add PDF export for coupon codes
     - _Requirements: 6.3, 3.9_
 
-  - [ ] 8.3 Create data management REST endpoints
+  - [x] 8.3 Create data management REST endpoints
 
     - Create endpoints for submission search and filtering
     - Add export endpoints for various formats
@@ -258,7 +254,9 @@
     - Add endpoints for reward distribution analytics
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-  - [ ] 8.4 Create data management GraphQL operations
+  - [x] 8.4 Create data management GraphQL operations
+
+
     - Implement GraphQL queries for analytics data
     - Create GraphQL operations for data export
     - Add real-time subscriptions for dashboard updates

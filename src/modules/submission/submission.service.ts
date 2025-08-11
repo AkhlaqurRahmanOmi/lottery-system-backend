@@ -22,7 +22,7 @@ export interface UserSubmissionData {
   phone: string;
   address: string;
   productExperience: string;
-  selectedRewardId: number;
+  selectedRewardId?: number;
   ipAddress?: string;
   userAgent?: string;
   additionalData?: any;
@@ -92,7 +92,7 @@ export class SubmissionService {
         phone: sanitizedData.phone,
         address: sanitizedData.address,
         productExperience: sanitizedData.productExperience,
-        selectedRewardId: sanitizedData.selectedRewardId,
+        selectedRewardId: sanitizedData.selectedRewardId || defaultReward.id,
         ipAddress: sanitizedData.ipAddress,
         userAgent: sanitizedData.userAgent,
         additionalData: sanitizedData.additionalData,

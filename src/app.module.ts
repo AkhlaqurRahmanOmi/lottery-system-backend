@@ -13,11 +13,13 @@ import { AdminRestModule } from './api/rest/admin/admin.module';
 import { CouponRestModule } from './api/rest/coupon/coupon.module';
 import { RewardRestModule } from './api/rest/reward/reward.module';
 import { SubmissionRestModule } from './api/rest/submission/submission.module';
+import { DataManagementModule } from './api/rest/data-management/data-management.module';
 import { AuthGraphQLModule } from './graphql/auth/auth-graphql.module';
 import { AdminGraphQLModule } from './graphql/admin/admin-graphql.module';
 import { CouponGraphQLModule } from './graphql/coupon/coupon-graphql.module';
 import { RewardGraphQLModule } from './graphql/reward/reward-graphql.module';
 import { SubmissionGraphQLModule } from './graphql/submission/submission-graphql.module';
+import { DataManagementGraphQLModule } from './graphql/data-management/data-management-graphql.module';
 import { PrismaModule } from './core/config/prisma/prisma.module';
 import { winstonConfig } from './logger/winston.config';
 import { WinstonModule } from 'nest-winston';
@@ -41,11 +43,13 @@ import { LoggingConfigService } from './shared/services/logging-config.service';
     CouponRestModule,
     RewardRestModule,
     SubmissionRestModule,
+    DataManagementModule,
     AuthGraphQLModule,
     AdminGraphQLModule,
     CouponGraphQLModule,
     RewardGraphQLModule,
     SubmissionGraphQLModule,
+    DataManagementGraphQLModule,
     WinstonModule.forRoot(winstonConfig),
     PrismaModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
