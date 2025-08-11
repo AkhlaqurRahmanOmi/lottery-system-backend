@@ -12,7 +12,8 @@
   - Replace existing Prisma schema with lottery system schema
   - Generate Prisma client for new schema
   - Create database migration files
-  - Seed initial data (admin user, rewards, system configs)
+  - Seed initial data (admin user, system configs)
+  - Note: Reward accounts will be created by admins, not pre-seeded
   - _Requirements: 9.1, 9.2, 9.3, 9.6_
 
 - [-] 3. Implement authentication module
@@ -109,7 +110,6 @@
 
   - [x] 5.3 Create coupon service with business logic
 
-
     - Implement coupon generation with configurable parameters
     - Add coupon validation and status management
     - Implement expiration handling and batch operations
@@ -118,31 +118,12 @@
 
   - [x] 5.4 Create coupon DTOs for REST and GraphQL
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     - Create coupon generation and management DTOs
     - Implement proper validation for coupon operations
     - Create response DTOs with batch information
     - _Requirements: 8.4, 8.6_
 
   - [x] 5.5 Implement coupon REST controller
-
-
-
-
-
 
     - Create endpoints for coupon generation and management
     - Add authentication guards for admin operations
@@ -152,133 +133,117 @@
 
   - [x] 5.6 Implement coupon GraphQL resolver
 
-
-
-
-
     - Create GraphQL mutations for coupon generation
     - Implement GraphQL queries for coupon management
     - Add real-time subscriptions for coupon updates
     - _Requirements: 8.2, 8.6_
 
-- [ ] 6. Implement reward management module
+- [-] 6. Implement reward account management and distribution module
 
-  - [x] 6.1 Create reward entity and repository
+  - [x] 6.1 Create reward account entity and repository
 
-
-
-
-
-
-    - Implement reward repository with CRUD operations
-    - Create database queries for reward management
-    - Add proper indexing and ordering functionality
+    - Implement reward account repository with CRUD operations
+    - Create database queries for reward account management
+    - Add proper indexing for status, category, and assignment tracking
+    - Implement credential encryption/decryption functionality
     - _Requirements: 7.1, 7.2, 7.3, 9.1_
 
-  - [x] 6.2 Create reward service with business logic
+  - [ ] 6.2 Create reward distribution service with business logic
 
-
-
-
-
-
-    - Implement reward creation, update, and deactivation
-    - Add reward ordering and display logic
-    - Implement active reward filtering
-    - _Requirements: 7.1, 7.2, 7.3, 7.4_
+    - Implement reward account creation and management
+    - Add reward assignment logic to users
+    - Implement reward status tracking (available, assigned, expired)
+    - Create reward inventory management functionality
+    - _Requirements: 7.1, 7.2, 7.4, 7.5, 7.6, 7.7_
 
   - [x] 6.3 Create reward DTOs for REST and GraphQL
 
-
-
-
-
-
-
-
-
-    - Create reward management DTOs with validation
-    - Implement response DTOs with proper structure
-    - Create public DTOs for user-facing operations
-    - _Requirements: 7.5, 8.4, 8.6_
+    - Create reward account management DTOs with validation
+    - Implement reward assignment DTOs
+    - Create response DTOs with encrypted credential handling
+    - Add DTOs for reward distribution tracking
+    - _Requirements: 7.1, 7.5, 8.4, 8.6_
 
   - [x] 6.4 Implement reward REST controller
 
+    - Create admin endpoints for reward account management
+    - Create endpoints for reward assignment to users
+    - Add reward inventory and distribution tracking endpoints
+    - Implement proper authentication and authorization
+    - _Requirements: 7.1, 7.2, 7.4, 7.5, 8.1, 8.4_
 
+  - [x] 6.5 Implement reward GraphQL resolver
 
-
-
-
-    - Create admin endpoints for reward management
-    - Create public endpoint for active rewards
-    - Add proper authentication and authorization
-    - _Requirements: 7.1, 7.2, 8.1, 8.4_
-
-  - [ ] 6.5 Implement reward GraphQL resolver
-
-
-
-
-    - Create GraphQL operations for reward management
-    - Implement public queries for active rewards
+    - Create GraphQL operations for reward account management
+    - Implement GraphQL mutations for reward assignment
+    - Add GraphQL queries for reward distribution tracking
     - Add proper authorization for admin operations
-    - _Requirements: 7.1, 7.2, 8.2_
+    - _Requirements: 7.1, 7.2, 7.4, 7.5, 8.2_
 
 - [ ] 7. Implement user submission and coupon redemption module
 
-  - [ ] 7.1 Create submission entity and repository
+  - [x] 7.1 Create submission entity and repository
 
     - Implement submission repository with CRUD operations
     - Create database queries for submission management
     - Add proper indexing for search and filtering
     - _Requirements: 4.1, 4.2, 4.3, 6.1, 6.2_
 
-  - [ ] 7.2 Create coupon validation service
+  - [x] 7.2 Create coupon validation service
 
     - Implement coupon code validation logic
     - Add expiration and status checking
     - Create redemption prevention for used coupons
     - _Requirements: 4.1, 4.4, 4.10_
 
-  - [ ] 7.3 Create submission service with business logic
+  - [x] 7.3 Create submission service with business logic
 
-    - Implement user form submission processing
+    - Implement user form submission processing without reward selection
     - Add coupon redemption and linking logic
     - Implement data validation and sanitization
     - Create submission analytics and reporting
-    - _Requirements: 4.2, 4.3, 4.8, 4.9, 6.1, 6.3, 6.4_
+    - Add admin reward assignment functionality to submissions
+    - _Requirements: 4.2, 4.3, 4.7, 4.8, 4.9, 4.10, 6.1, 6.3, 6.4_
 
-  - [ ] 7.4 Create submission DTOs for REST and GraphQL
+  - [x] 7.4 Create submission DTOs for REST and GraphQL
 
     - Create user submission DTOs with comprehensive validation
     - Implement email and phone format validation
-    - Create response DTOs with reward information
-    - _Requirements: 4.3, 4.4, 4.5, 4.6, 4.7, 8.4, 8.6_
+    - Create response DTOs for successful submission confirmation
+    - Add DTOs for admin reward assignment operations
+    - _Requirements: 4.3, 4.4, 4.5, 4.6, 4.7, 4.9, 4.10, 8.4, 8.6_
 
-  - [ ] 7.5 Implement submission REST controller
+  - [x] 7.5 Implement submission REST controller
 
     - Create public endpoint for coupon validation
-    - Create public endpoint for form submission
-    - Create admin endpoints for submission management
+    - Create public endpoint for form submission without reward selection
+    - Create admin endpoints for submission management and review
+    - Create admin endpoints for reward assignment to users
     - Add proper error handling and user feedback
-    - _Requirements: 4.1, 4.2, 4.8, 6.1, 8.1, 8.4_
+    - _Requirements: 4.1, 4.2, 4.7, 4.8, 4.9, 4.10, 6.1, 8.1, 8.4_
 
-  - [ ] 7.6 Implement submission GraphQL resolver
+  - [x] 7.6 Implement submission GraphQL resolver
+
     - Create GraphQL operations for submission management
-    - Implement public mutations for coupon redemption
+    - Implement public mutations for coupon redemption without reward selection
+    - Add GraphQL mutations for admin reward assignment
     - Add real-time subscriptions for submission updates
-    - _Requirements: 4.1, 4.2, 8.2_
+    - _Requirements: 4.1, 4.2, 4.9, 4.10, 8.2_
 
 - [ ] 8. Implement data management and analytics
 
-  - [ ] 8.1 Create analytics service
+  - [x] 8.1 Create analytics service
+
 
     - Implement summary statistics calculation
     - Create conversion rate and performance metrics
     - Add reward selection analytics
     - _Requirements: 6.4, 6.5_
 
-  - [ ] 8.2 Create export service
+  - [-] 8.2 Create export service
+
+
+
 
     - Implement CSV export for user submissions
     - Create Excel export functionality
@@ -290,13 +255,15 @@
     - Create endpoints for submission search and filtering
     - Add export endpoints for various formats
     - Implement analytics dashboard endpoints
-    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+    - Add endpoints for reward distribution analytics
+    - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
   - [ ] 8.4 Create data management GraphQL operations
     - Implement GraphQL queries for analytics data
     - Create GraphQL operations for data export
     - Add real-time subscriptions for dashboard updates
-    - _Requirements: 6.1, 6.2, 6.4_
+    - Add GraphQL operations for reward distribution analytics
+    - _Requirements: 6.1, 6.2, 6.4, 6.5_
 
 - [ ] 9. Implement security and validation enhancements
 

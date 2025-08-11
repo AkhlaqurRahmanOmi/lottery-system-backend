@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsString, IsNotEmpty, IsOptional, IsInt, IsDateString, IsJSON, Min, Max } from 'class-validator';
 import { CouponBaseDto, GenerationMethod } from './coupon-base.dto';
+import { GraphQLJSONObject } from 'graphql-type-json';
 
 @InputType('CreateCouponInput')
 export class CreateCouponDto extends OmitType(CouponBaseDto, ['id', 'status', 'createdAt', 'redeemedAt', 'redeemedBy', 'expiresAt']) {
@@ -60,7 +61,7 @@ export class CreateCouponDto extends OmitType(CouponBaseDto, ['id', 'status', 'c
   })
   generationMethod: GenerationMethod;
 
-  @Field({ nullable: true })
+  @Field(() => GraphQLJSONObject, { nullable: true })
   @ApiPropertyOptional({
     description: 'Additional metadata as JSON',
     example: { campaign: 'summer2024', source: 'web' }

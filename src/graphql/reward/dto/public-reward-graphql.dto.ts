@@ -13,10 +13,10 @@ export class PublicRewardGraphQLDto {
   name: string;
 
   @Field({ nullable: true, description: 'Description of the reward' })
-  description?: string | null;
+  description?: string;
 
   @Field({ nullable: true, description: 'URL to the reward image' })
-  imageUrl?: string | null;
+  imageUrl?: string;
 
   @Field(() => Int, { description: 'Display order for the reward (lower numbers appear first)' })
   displayOrder: number;
@@ -78,7 +78,7 @@ export class PublicRewardPopularityGraphQLResponseDto {
   @Field(() => Int, { description: 'Total number of reward selections across all rewards' })
   totalSelections: number;
 
-  @Field({ description: 'Date when statistics were last updated' })
+  @Field(() => Date, { description: 'Date when statistics were last updated' })
   lastUpdated: Date;
 }
 
@@ -93,7 +93,7 @@ export class PublicRewardUpdatePayloadDto {
   @Field(() => PublicRewardGraphQLDto, { nullable: true, description: 'Updated reward data (null if deactivated)' })
   reward?: PublicRewardGraphQLDto;
 
-  @Field({ description: 'Timestamp of the update' })
+  @Field(() => Date, { description: 'Timestamp of the update' })
   timestamp: Date;
 }
 

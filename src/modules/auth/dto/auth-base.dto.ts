@@ -27,12 +27,12 @@ export class AdminBaseDto {
   @IsEmail()
   email: string;
 
-  @Field(() => String)
+  @Field(() => AdminRole)
   @ApiProperty({ enum: AdminRole })
   @IsEnum(AdminRole)
   role: AdminRole;
 
-  @Field({ nullable: true })
+  @Field(() => Date, { nullable: true })
   @ApiPropertyOptional()
   @IsOptional()
   @IsDate()

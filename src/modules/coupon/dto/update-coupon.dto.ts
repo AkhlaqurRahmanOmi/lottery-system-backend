@@ -3,6 +3,7 @@ import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsOptional, IsEnum, IsDateString, IsJSON, IsInt } from 'class-validator';
 import { CreateCouponDto } from './create-coupon.dto';
 import { CouponStatus } from './coupon-base.dto';
+import { GraphQLJSONObject } from 'graphql-type-json';
 
 @InputType('UpdateCouponInput')
 export class UpdateCouponDto extends PartialType(
@@ -44,7 +45,7 @@ export class UpdateCouponDto extends PartialType(
   @IsInt({ message: 'Redeemed by must be an integer' })
   redeemedBy?: number;
 
-  @Field({ nullable: true })
+  @Field(() => GraphQLJSONObject, { nullable: true })
   @ApiPropertyOptional({
     description: 'Additional metadata as JSON',
     example: { campaign: 'summer2024', source: 'web', notes: 'Updated expiration' }

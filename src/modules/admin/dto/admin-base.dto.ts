@@ -51,7 +51,7 @@ export class AdminBaseDto {
   @IsDate()
   updatedAt?: Date;
 
-  @Field({ nullable: true })
+  @Field(() => Date, { nullable: true })
   @ApiPropertyOptional()
   @IsOptional()
   @IsDate()

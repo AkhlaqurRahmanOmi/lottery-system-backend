@@ -29,7 +29,8 @@ import {
   PaginatedBatchStatisticsGraphQLResponseDto,
   CouponUpdatePayloadDto,
   BatchUpdatePayloadDto,
-  UpdateCouponStatusGraphQLDto
+  UpdateCouponStatusGraphQLDto,
+  CouponStatisticsGraphQLDto
 } from './dto';
 import {
   CouponResponseDto,
@@ -151,20 +152,13 @@ export class CouponResolver {
     }
   }
 
-  @Query(() => Object, {
+  @Query(() => CouponStatisticsGraphQLDto, {
     description: 'Get coupon system statistics'
   })
   @UseGuards(JwtAuthGuard)
   async couponStatistics(
     @CurrentAdmin() admin: Admin
-  ): Promise<{
-    total: number;
-    active: number;
-    redeemed: number;
-    expired: number;
-    deactivated: number;
-    redemptionRate: number;
-  }> {
+  ): Promise<CouponStatisticsGraphQLDto> {
     try {
       this.logger.log(`Admin ${admin.username} requesting coupon statistics`);
       return await this.couponService.getStatistics();
@@ -421,7 +415,7 @@ export class CouponResolver {
     return this.pubSub.asyncIterator('batchUpdated');
   }
 
-  @Subscription(() => Object, {
+  @Subscription(() => CouponStatisticsGraphQLDto, {
     description: 'Subscribe to coupon statistics updates'
   })
   @UseGuards(JwtAuthGuard)

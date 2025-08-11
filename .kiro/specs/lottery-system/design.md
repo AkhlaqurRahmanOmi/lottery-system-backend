@@ -221,14 +221,15 @@ interface CouponValidationResult {
 
 ### 4. Submission Module
 
-**Purpose**: Handle user data collection and coupon redemption
+**Purpose**: Handle user data collection, coupon redemption, and admin reward assignment
 
 **Components**:
-- `SubmissionService`: Process user form submissions
-- `SubmissionController`: REST endpoints for user interactions
-- `SubmissionResolver`: GraphQL operations for submission data
+- `SubmissionService`: Process user form submissions and reward assignments
+- `SubmissionController`: REST endpoints for user interactions and admin management
+- `SubmissionResolver`: GraphQL operations for submission data and reward assignments
 - `SubmissionRepository`: Database operations for submission entity
 - `ValidationService`: User input validation
+- `RewardAssignmentService`: Handle admin reward distribution to users
 
 **Key Interfaces**:
 ```typescript
@@ -239,7 +240,6 @@ interface CreateSubmissionDto {
   phone: string;
   address: string;
   productExperience: string;
-  selectedRewardId: number;
 }
 
 interface SubmissionEntity {
@@ -250,41 +250,56 @@ interface SubmissionEntity {
   phone: string;
   address: string;
   productExperience: string;
-  selectedRewardId: number;
   submittedAt: Date;
   ipAddress?: string;
   userAgent?: string;
+  assignedRewardId?: number;
+  rewardAssignedAt?: Date;
+  rewardAssignedBy?: number;
 }
 ```
 
 ### 5. Reward Module
 
-**Purpose**: Manage available rewards for user selection
+**Purpose**: Manage reward accounts and distribution to users
 
 **Components**:
-- `RewardService`: CRUD operations for rewards
-- `RewardController`: REST endpoints for reward management
+- `RewardService`: CRUD operations for reward accounts and distribution
+- `RewardController`: REST endpoints for reward account management
 - `RewardResolver`: GraphQL operations for reward data
 - `RewardRepository`: Database operations for reward entity
+- `RewardDistributionService`: Handle reward assignment to users
 
 **Key Interfaces**:
 ```typescript
-interface CreateRewardDto {
-  name: string;
+interface CreateRewardAccountDto {
+  serviceName: string;
+  accountType: string;
+  credentials: string; // encrypted
+  subscriptionDuration?: string;
   description?: string;
-  imageUrl?: string;
-  displayOrder?: number;
+  category: RewardCategory;
 }
 
-interface RewardEntity {
+interface RewardAccountEntity {
   id: number;
-  name: string;
+  serviceName: string;
+  accountType: string;
+  encryptedCredentials: string;
+  subscriptionDuration?: string;
   description?: string;
-  imageUrl?: string;
-  isActive: boolean;
-  displayOrder: number;
+  category: RewardCategory;
+  status: RewardStatus;
+  assignedToUserId?: number;
+  assignedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
+}
+
+interface AssignRewardDto {
+  rewardAccountId: number;
+  userId: number;
+  notes?: string;
 }
 ```
 
@@ -308,6 +323,8 @@ model Admin {
   
   // Relations
   createdCoupons Coupon[] @relation("CreatedBy")
+  createdRewards RewardAccount[] @relation("RewardCreatedBy")
+  assignedRewards Submission[] @relation("RewardAssignedBy")
   
   @@index([username])
   @@index([email])
@@ -348,39 +365,49 @@ model Submission {
   phone               String
   address             String
   productExperience   String
-  selectedRewardId    Int
   submittedAt         DateTime @default(now())
   ipAddress           String?
   userAgent           String?
   additionalData      Json?
+  assignedRewardId    Int?
+  rewardAssignedAt    DateTime?
+  rewardAssignedBy    Int?
   
   // Relations
   coupon        Coupon @relation("RedeemedCoupon", fields: [couponId], references: [id])
-  selectedReward Reward @relation("SelectedReward", fields: [selectedRewardId], references: [id])
+  assignedReward RewardAccount? @relation("AssignedReward", fields: [assignedRewardId], references: [id])
+  rewardAssignedByAdmin Admin? @relation("RewardAssignedBy", fields: [rewardAssignedBy], references: [id])
   
   @@index([couponId])
   @@index([email])
-  @@index([selectedRewardId])
+  @@index([assignedRewardId])
   @@index([submittedAt])
   @@map("user_submissions")
 }
 
-model Reward {
-  id           Int      @id @default(autoincrement())
-  name         String
-  description  String?
-  imageUrl     String?
-  isActive     Boolean  @default(true)
-  displayOrder Int      @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+model RewardAccount {
+  id                    Int      @id @default(autoincrement())
+  serviceName           String
+  accountType           String
+  encryptedCredentials  String
+  subscriptionDuration  String?
+  description           String?
+  category              RewardCategory
+  status                RewardStatus @default(AVAILABLE)
+  assignedToUserId      Int?
+  assignedAt            DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  createdBy             Int
   
   // Relations
-  submissions Submission[] @relation("SelectedReward")
+  creator       Admin @relation("RewardCreatedBy", fields: [createdBy], references: [id])
+  assignedSubmission Submission? @relation("AssignedReward")
   
-  @@index([isActive])
-  @@index([displayOrder])
-  @@map("rewards")
+  @@index([status])
+  @@index([category])
+  @@index([assignedToUserId])
+  @@map("reward_accounts")
 }
 
 model SystemConfig {
@@ -418,6 +445,21 @@ enum ConfigType {
   NUMBER
   BOOLEAN
   JSON
+}
+
+enum RewardCategory {
+  STREAMING_SERVICE
+  GIFT_CARD
+  SUBSCRIPTION
+  DIGITAL_PRODUCT
+  OTHER
+}
+
+enum RewardStatus {
+  AVAILABLE
+  ASSIGNED
+  EXPIRED
+  DEACTIVATED
 }
 ```
 

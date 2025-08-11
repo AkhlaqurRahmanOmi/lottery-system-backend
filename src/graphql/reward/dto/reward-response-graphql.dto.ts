@@ -83,6 +83,24 @@ export class RewardSelectionValidationGraphQLResponseDto {
 }
 
 /**
+ * GraphQL-specific type for reward popularity data
+ */
+@ObjectType('RewardPopularityItem')
+export class RewardPopularityItem {
+  @Field(() => Int, { description: 'Reward ID' })
+  id: number;
+
+  @Field({ description: 'Reward name' })
+  name: string;
+
+  @Field(() => Int, { description: 'Number of times this reward has been selected' })
+  selectionCount: number;
+
+  @Field({ nullable: true, description: 'Percentage of total selections' })
+  selectionPercentage?: number;
+}
+
+/**
  * GraphQL-specific response for reward statistics
  */
 @ObjectType('RewardStatistics')
@@ -101,24 +119,6 @@ export class RewardStatisticsGraphQLResponseDto {
 
   @Field(() => RewardPopularityItem, { nullable: true, description: 'Least popular reward' })
   leastPopularReward?: RewardPopularityItem;
-}
-
-/**
- * GraphQL-specific type for reward popularity data
- */
-@ObjectType('RewardPopularityItem')
-export class RewardPopularityItem {
-  @Field(() => Int, { description: 'Reward ID' })
-  id: number;
-
-  @Field({ description: 'Reward name' })
-  name: string;
-
-  @Field(() => Int, { description: 'Number of times this reward has been selected' })
-  selectionCount: number;
-
-  @Field({ nullable: true, description: 'Percentage of total selections' })
-  selectionPercentage?: number;
 }
 
 /**
@@ -144,7 +144,7 @@ export class RewardUpdatePayloadDto {
   @Field(() => RewardResponseDto, { description: 'Updated reward data' })
   reward: RewardResponseDto;
 
-  @Field({ description: 'Timestamp of the update' })
+  @Field(() => Date, { description: 'Timestamp of the update' })
   timestamp: Date;
 
   @Field(() => Int, { nullable: true, description: 'ID of the admin who performed the update' })
@@ -162,6 +162,6 @@ export class RewardStatisticsUpdatePayloadDto {
   @Field(() => RewardStatisticsGraphQLResponseDto, { description: 'Updated statistics data' })
   statistics: RewardStatisticsGraphQLResponseDto;
 
-  @Field({ description: 'Timestamp of the update' })
+  @Field(() => Date, { description: 'Timestamp of the update' })
   timestamp: Date;
 }

@@ -3,6 +3,7 @@ import { BadRequestException, NotFoundException, ConflictException } from '@nest
 import { CouponService } from './coupon.service';
 import { CouponRepository } from './coupon.repository';
 import { CouponGeneratorService } from './coupon-generator.service';
+import { CouponValidationService } from './coupon-validation.service';
 import { CouponStatus, GenerationMethod, ExportFormat } from './dto';
 import type { Coupon } from '@prisma/client';
 
@@ -10,6 +11,7 @@ describe('CouponService', () => {
   let service: CouponService;
   let repository: CouponRepository;
   let generatorService: CouponGeneratorService;
+  let validationService: CouponValidationService;
 
   const mockCoupon: Coupon = {
     id: 1,
@@ -54,6 +56,15 @@ describe('CouponService', () => {
     getGenerationStats: jest.fn(),
   };
 
+  const mockCouponValidationService = {
+    validateCouponForRedemption: jest.fn(),
+    validateCouponFormat: jest.fn(),
+    canRedeemCoupon: jest.fn(),
+    validateMultipleCoupons: jest.fn(),
+    getDetailedValidationInfo: jest.fn(),
+    validateCouponWithOptions: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -66,12 +77,17 @@ describe('CouponService', () => {
           provide: CouponGeneratorService,
           useValue: mockCouponGeneratorService,
         },
+        {
+          provide: CouponValidationService,
+          useValue: mockCouponValidationService,
+        },
       ],
     }).compile();
 
     service = module.get<CouponService>(CouponService);
     repository = module.get<CouponRepository>(CouponRepository);
     generatorService = module.get<CouponGeneratorService>(CouponGeneratorService);
+    validationService = module.get<CouponValidationService>(CouponValidationService);
 
     // Reset all mocks
     jest.clearAllMocks();
@@ -178,59 +194,55 @@ describe('CouponService', () => {
   });
 
   describe('validateCoupon', () => {
-    it('should validate a valid coupon', async () => {
+    it('should validate a valid coupon using validation service', async () => {
       const couponCode = 'TEST123456';
       const validationResult = {
         isValid: true,
         coupon: mockCoupon,
       };
 
-      mockCouponGeneratorService.validateCodeFormat.mockReturnValue(true);
-      mockCouponRepository.validateCoupon.mockResolvedValue(validationResult);
+      mockCouponValidationService.validateCouponForRedemption.mockResolvedValue(validationResult);
 
       const result = await service.validateCoupon(couponCode);
 
       expect(result.isValid).toBe(true);
       expect(result.coupon).toBeDefined();
-      expect(mockCouponGeneratorService.validateCodeFormat).toHaveBeenCalledWith(couponCode);
-      expect(mockCouponRepository.validateCoupon).toHaveBeenCalledWith(couponCode);
+      expect(mockCouponValidationService.validateCouponForRedemption).toHaveBeenCalledWith(couponCode);
     });
 
-    it('should return invalid for malformed coupon code', async () => {
-      const couponCode = '';
-
-      const result = await service.validateCoupon(couponCode);
-
-      expect(result.isValid).toBe(false);
-      expect(result.errorCode).toBe('INVALID_FORMAT');
-    });
-
-    it('should return invalid for incorrect format', async () => {
-      const couponCode = 'INVALID';
-
-      mockCouponGeneratorService.validateCodeFormat.mockReturnValue(false);
-
-      const result = await service.validateCoupon(couponCode);
-
-      expect(result.isValid).toBe(false);
-      expect(result.errorCode).toBe('INVALID_FORMAT');
-    });
-
-    it('should return repository validation result', async () => {
-      const couponCode = 'TEST123456';
+    it('should return invalid result from validation service', async () => {
+      const couponCode = 'INVALID123';
       const validationResult = {
         isValid: false,
-        error: 'Coupon has already been redeemed',
+        error: 'Coupon code format is invalid',
+        errorCode: 'INVALID_FORMAT',
+      };
+
+      mockCouponValidationService.validateCouponForRedemption.mockResolvedValue(validationResult);
+
+      const result = await service.validateCoupon(couponCode);
+
+      expect(result.isValid).toBe(false);
+      expect(result.error).toBe('Coupon code format is invalid');
+      expect(result.errorCode).toBe('INVALID_FORMAT');
+      expect(mockCouponValidationService.validateCouponForRedemption).toHaveBeenCalledWith(couponCode);
+    });
+
+    it('should return already redeemed error from validation service', async () => {
+      const couponCode = 'REDEEMED123';
+      const validationResult = {
+        isValid: false,
+        error: 'This coupon has already been redeemed and cannot be used again',
         errorCode: 'COUPON_ALREADY_REDEEMED',
       };
 
-      mockCouponGeneratorService.validateCodeFormat.mockReturnValue(true);
-      mockCouponRepository.validateCoupon.mockResolvedValue(validationResult);
+      mockCouponValidationService.validateCouponForRedemption.mockResolvedValue(validationResult);
 
       const result = await service.validateCoupon(couponCode);
 
       expect(result.isValid).toBe(false);
       expect(result.errorCode).toBe('COUPON_ALREADY_REDEEMED');
+      expect(mockCouponValidationService.validateCouponForRedemption).toHaveBeenCalledWith(couponCode);
     });
   });
 
@@ -249,14 +261,14 @@ describe('CouponService', () => {
         redeemedBy,
       };
 
-      mockCouponGeneratorService.validateCodeFormat.mockReturnValue(true);
-      mockCouponRepository.validateCoupon.mockResolvedValue(validationResult);
+      mockCouponValidationService.validateCouponForRedemption.mockResolvedValue(validationResult);
       mockCouponRepository.markAsRedeemed.mockResolvedValue(redeemedCoupon);
 
       const result = await service.redeemCoupon(couponCode, redeemedBy);
 
       expect(result.status).toBe(CouponStatus.REDEEMED);
       expect(result.redeemedBy).toBe(redeemedBy);
+      expect(mockCouponValidationService.validateCouponForRedemption).toHaveBeenCalledWith(couponCode);
       expect(mockCouponRepository.markAsRedeemed).toHaveBeenCalledWith(couponCode, redeemedBy);
     });
 
@@ -268,10 +280,10 @@ describe('CouponService', () => {
         errorCode: 'COUPON_NOT_FOUND',
       };
 
-      mockCouponGeneratorService.validateCodeFormat.mockReturnValue(true);
-      mockCouponRepository.validateCoupon.mockResolvedValue(validationResult);
+      mockCouponValidationService.validateCouponForRedemption.mockResolvedValue(validationResult);
 
       await expect(service.redeemCoupon(couponCode)).rejects.toThrow(BadRequestException);
+      expect(mockCouponValidationService.validateCouponForRedemption).toHaveBeenCalledWith(couponCode);
     });
   });
 

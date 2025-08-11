@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
 import { Field, ObjectType, Int } from '@nestjs/graphql';
 import { CouponBaseDto, CouponStatus, GenerationMethod } from './coupon-base.dto';
+import { GraphQLJSONObject } from 'graphql-type-json';
 
 // Coupon response DTO with all information
 @ObjectType('CouponResponse')
@@ -29,15 +30,15 @@ export class CouponResponseDto extends OmitType(CouponBaseDto, []) {
   @ApiProperty()
   createdBy: number;
 
-  @Field()
+  @Field(() => Date)
   @ApiProperty()
   createdAt: Date;
 
-  @Field({ nullable: true })
+  @Field(() => Date, { nullable: true })
   @ApiPropertyOptional()
   expiresAt?: Date;
 
-  @Field({ nullable: true })
+  @Field(() => Date, { nullable: true })
   @ApiPropertyOptional()
   redeemedAt?: Date;
 
@@ -49,7 +50,7 @@ export class CouponResponseDto extends OmitType(CouponBaseDto, []) {
   @ApiProperty({ enum: GenerationMethod })
   generationMethod: GenerationMethod;
 
-  @Field({ nullable: true })
+  @Field(() => GraphQLJSONObject, { nullable: true })
   @ApiPropertyOptional()
   metadata?: any;
 }
@@ -85,7 +86,7 @@ export class SubmissionInfoDto {
   @ApiProperty()
   email: string;
 
-  @Field()
+  @Field(() => Date)
   @ApiProperty()
   submittedAt: Date;
 }
@@ -161,7 +162,7 @@ export class BatchStatisticsDto {
   @ApiProperty()
   deactivatedCoupons: number;
 
-  @Field()
+  @Field(() => Date)
   @ApiProperty()
   createdAt: Date;
 

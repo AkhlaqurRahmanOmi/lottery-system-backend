@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Field, ObjectType, Int, InputType } from '@nestjs/graphql';
 import { IsString, IsNotEmpty, IsOptional, IsEnum, IsInt, IsDate, IsJSON } from 'class-validator';
 import { CouponStatus, GenerationMethod } from '@prisma/client';
+import { GraphQLJSONObject } from 'graphql-type-json';
 
 // Re-export enums for other modules
 export { CouponStatus, GenerationMethod };
@@ -43,19 +44,19 @@ export class CouponBaseDto {
   @IsInt()
   createdBy: number;
 
-  @Field({ nullable: true })
+  @Field(() => Date, { nullable: true })
   @ApiPropertyOptional()
   @IsOptional()
   @IsDate()
   createdAt?: Date;
 
-  @Field({ nullable: true })
+  @Field(() => Date, { nullable: true })
   @ApiPropertyOptional()
   @IsOptional()
   @IsDate()
   expiresAt?: Date;
 
-  @Field({ nullable: true })
+  @Field(() => Date, { nullable: true })
   @ApiPropertyOptional()
   @IsOptional()
   @IsDate()
@@ -72,7 +73,7 @@ export class CouponBaseDto {
   @IsEnum(GenerationMethod)
   generationMethod: GenerationMethod;
 
-  @Field({ nullable: true })
+  @Field(() => GraphQLJSONObject, { nullable: true })
   @ApiPropertyOptional()
   @IsOptional()
   @IsJSON()

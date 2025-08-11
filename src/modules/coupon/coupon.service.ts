@@ -2,6 +2,7 @@ import { Injectable, Logger, BadRequestException, NotFoundException, ConflictExc
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { CouponRepository } from './coupon.repository';
 import { CouponGeneratorService, GenerateCouponOptions, BatchGenerationResult } from './coupon-generator.service';
+import { CouponValidationService } from './coupon-validation.service';
 import {
   CreateCouponDto,
   UpdateCouponDto,
@@ -32,6 +33,7 @@ export class CouponService {
   constructor(
     private readonly couponRepository: CouponRepository,
     private readonly couponGeneratorService: CouponGeneratorService,
+    private readonly couponValidationService: CouponValidationService,
   ) {}
 
   /**
@@ -119,25 +121,7 @@ export class CouponService {
   async validateCoupon(couponCode: string): Promise<CouponValidationResultDto> {
     this.logger.debug(`Validating coupon: ${couponCode}`);
 
-    if (!couponCode || typeof couponCode !== 'string') {
-      return {
-        isValid: false,
-        error: 'Invalid coupon code format',
-        errorCode: 'INVALID_FORMAT'
-      };
-    }
-
-    // Validate code format
-    if (!this.couponGeneratorService.validateCodeFormat(couponCode)) {
-      return {
-        isValid: false,
-        error: 'Coupon code format is invalid',
-        errorCode: 'INVALID_FORMAT'
-      };
-    }
-
-    // Check coupon in database and validate business rules
-    const validationResult = await this.couponRepository.validateCoupon(couponCode);
+    const validationResult = await this.couponValidationService.validateCouponForRedemption(couponCode);
     
     if (validationResult.isValid) {
       this.logger.debug(`Coupon ${couponCode} is valid for redemption`);

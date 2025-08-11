@@ -12,11 +12,11 @@ export class RewardResponseDto {
   @ApiProperty()
   name: string;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @ApiProperty({ required: false })
   description?: string | null;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @ApiProperty({ required: false })
   imageUrl?: string | null;
 
@@ -28,11 +28,11 @@ export class RewardResponseDto {
   @ApiProperty()
   displayOrder: number;
 
-  @Field()
+  @Field(() => Date)
   @ApiProperty()
   createdAt: Date;
 
-  @Field()
+  @Field(() => Date)
   @ApiProperty()
   updatedAt: Date;
 }

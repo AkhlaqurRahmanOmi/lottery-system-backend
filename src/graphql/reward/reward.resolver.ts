@@ -74,8 +74,8 @@ export class RewardResolver {
       const publicRewards: PublicRewardGraphQLDto[] = rewards.map(reward => ({
         id: reward.id,
         name: reward.name,
-        description: reward.description,
-        imageUrl: reward.imageUrl,
+        description: reward.description || undefined,
+        imageUrl: reward.imageUrl || undefined,
         displayOrder: reward.displayOrder
       }));
 
@@ -112,8 +112,8 @@ export class RewardResolver {
       const publicReward: PublicRewardGraphQLDto = {
         id: reward.id,
         name: reward.name,
-        description: reward.description,
-        imageUrl: reward.imageUrl,
+        description: reward.description || undefined,
+        imageUrl: reward.imageUrl || undefined,
         displayOrder: reward.displayOrder
       };
 

@@ -69,7 +69,7 @@ A web-based application with two main interfaces:
 
 ### 3.3 User Data Collection
 **Priority**: High  
-**Description**: Collect user information and reward selection upon valid coupon redemption
+**Description**: Collect user information upon valid coupon redemption for admin review and reward distribution
 
 **Functional Requirements**:
 - FR-3.1: Validate coupon code before showing form
@@ -79,10 +79,9 @@ A web-based application with two main interfaces:
   - Phone (required, format validation)
   - Address (required)
   - Product Use Experience (required)
-  - **Reward Selection (required)**: User must choose one reward from available options
-- FR-3.3: Display active rewards in dropdown/radio button format
-- FR-3.4: Form validation and error handling
-- FR-3.5: Success confirmation with selected reward details after submission
+- FR-3.3: Form validation and error handling
+- FR-3.4: Success confirmation after submission without promising specific rewards
+- FR-3.5: Store user data for admin review and reward distribution
 
 ### 3.4 Coupon Management
 **Priority**: High  
@@ -104,15 +103,27 @@ A web-based application with two main interfaces:
 - FR-5.3: Export user data to Excel/CSV
 - FR-5.4: View redemption analytics
 
-### 3.6 System Configuration (Future Enhancement)
+### 3.6 Admin Reward Distribution System
+**Priority**: High  
+**Description**: Admin management of reward accounts and distribution to users
+
+**Functional Requirements**:
+- FR-6.1: Create and manage reward accounts (Spotify, Netflix, YouTube Premium, etc.)
+- FR-6.2: Store encrypted reward account credentials securely
+- FR-6.3: Review user submissions and select winners
+- FR-6.4: Assign specific reward accounts to specific users
+- FR-6.5: Track reward distribution history and status
+- FR-6.6: Support different reward categories (streaming services, gift cards, etc.)
+- FR-6.7: Manage reward account inventory (available, assigned, expired)
+
+### 3.7 System Configuration (Future Enhancement)
 **Priority**: Low  
 **Description**: Configurable system settings
 
 **Functional Requirements**:
-- FR-6.1: Customize form fields
-- FR-6.2: Configure coupon code format
-- FR-6.3: Set system messages
-- FR-6.4: Manage gift/reward information
+- FR-7.1: Customize form fields
+- FR-7.2: Configure coupon code format
+- FR-7.3: Set system messages
 
 ---
 
@@ -194,16 +205,19 @@ CREATE TABLE user_submissions (
     phone VARCHAR(20) NOT NULL,
     address TEXT NOT NULL,
     product_experience TEXT NOT NULL,
-    selected_reward_id INT NULL, -- User's choice of reward
     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     ip_address VARCHAR(45) NULL,
     user_agent TEXT NULL,
     additional_data JSON NULL, -- For future form fields
+    assigned_reward_id INT NULL, -- Admin-assigned reward account
+    reward_assigned_at TIMESTAMP NULL,
+    reward_assigned_by INT NULL, -- Admin who assigned the reward
     FOREIGN KEY (coupon_id) REFERENCES coupons(id),
-    FOREIGN KEY (selected_reward_id) REFERENCES rewards(id),
+    FOREIGN KEY (assigned_reward_id) REFERENCES reward_accounts(id),
+    FOREIGN KEY (reward_assigned_by) REFERENCES admins(id),
     INDEX idx_coupon_id (coupon_id),
     INDEX idx_email (email),
-    INDEX idx_selected_reward_id (selected_reward_id),
+    INDEX idx_assigned_reward_id (assigned_reward_id),
     INDEX idx_submitted_at (submitted_at)
 );
 
@@ -261,27 +275,28 @@ CREATE TABLE activity_logs (
     INDEX idx_created_at (created_at)
 );
 
--- Rewards Management (Simplified for MVP)
-CREATE TABLE rewards (
+-- Reward Account Management
+CREATE TABLE reward_accounts (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100) NOT NULL,
+    service_name VARCHAR(100) NOT NULL, -- e.g., 'Spotify', 'Netflix', 'YouTube Premium'
+    account_type VARCHAR(50) NOT NULL, -- e.g., 'Premium', 'Basic', 'Family'
+    encrypted_credentials TEXT NOT NULL, -- Encrypted account credentials
+    subscription_duration VARCHAR(50) NULL, -- e.g., '1 Month', '3 Months'
     description TEXT NULL,
-    image_url VARCHAR(255) NULL,
-    is_active BOOLEAN DEFAULT TRUE,
-    display_order INT DEFAULT 0, -- For ordering rewards in dropdown
+    category ENUM('streaming_service', 'gift_card', 'subscription', 'digital_product', 'other') DEFAULT 'streaming_service',
+    status ENUM('available', 'assigned', 'expired', 'deactivated') DEFAULT 'available',
+    assigned_to_user_id INT NULL,
+    assigned_at TIMESTAMP NULL,
+    created_by INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_is_active (is_active),
-    INDEX idx_display_order (display_order)
+    FOREIGN KEY (created_by) REFERENCES admins(id),
+    FOREIGN KEY (assigned_to_user_id) REFERENCES user_submissions(id),
+    INDEX idx_status (status),
+    INDEX idx_category (category),
+    INDEX idx_assigned_to_user_id (assigned_to_user_id),
+    INDEX idx_created_by (created_by)
 );
-
--- Sample rewards data
-INSERT INTO rewards (name, description, display_order, is_active) VALUES
-('YouTube Premium (1 Month)', 'Get 1 month of YouTube Premium subscription', 1, TRUE),
-('Netflix Premium (1 Month)', 'Get 1 month of Netflix Premium subscription', 2, TRUE),
-('Spotify Premium (1 Month)', 'Get 1 month of Spotify Premium subscription', 3, TRUE),
-('Amazon Prime (1 Month)', 'Get 1 month of Amazon Prime subscription', 4, TRUE),
-('$50 Gift Voucher', 'Universal gift voucher worth $50', 5, TRUE);
 
 -- Remove the complex submission_rewards table as it's no longer needed for MVP
 -- Link rewards to submissions (Future Enhancement - for multiple rewards per user)
@@ -355,9 +370,10 @@ INSERT INTO rewards (name, description, display_order, is_active) VALUES
 ### 8.2 User Functions
 - [ ] User can enter coupon code on front page
 - [ ] System validates coupon before showing form
-- [ ] User can submit required information
+- [ ] User can submit required information (without reward selection)
 - [ ] System prevents reuse of redeemed coupons
 - [ ] User receives confirmation after submission
+- [ ] User data is stored for admin review and reward distribution
 
 ### 8.3 System Functions
 - [ ] Database maintains data integrity
@@ -416,9 +432,18 @@ GET  /api/admin/analytics/summary       // Basic analytics (total coupons, redem
 #### 10.1.4 Public - User Redemption APIs
 ```
 POST /api/coupons/validate               // Validate coupon code
-GET  /api/rewards/active                 // Get list of available rewards
 POST /api/coupons/redeem                // Submit user form and redeem coupon
 GET  /api/coupons/status/{code}         // Check coupon status (optional)
+```
+
+#### 10.1.5 Admin - Reward Distribution APIs
+```
+GET  /api/admin/reward-accounts          // List all reward accounts
+POST /api/admin/reward-accounts          // Create new reward account
+PUT  /api/admin/reward-accounts/{id}     // Update reward account
+DELETE /api/admin/reward-accounts/{id}   // Delete reward account
+POST /api/admin/submissions/{id}/assign-reward  // Assign reward to user
+GET  /api/admin/reward-distribution      // View reward distribution history
 ```
 
 

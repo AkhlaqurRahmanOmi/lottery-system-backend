@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsInt, IsOptional, IsString, Min, Max, IsJSON } from 'class-validator';
+import { GraphQLJSONObject } from 'graphql-type-json';
 
 @InputType('GenerateCouponsInput')
 export class GenerateCouponsDto {
@@ -60,7 +61,7 @@ export class GenerateCouponsDto {
   @IsInt({ message: 'Created by must be an integer' })
   createdBy: number;
 
-  @Field({ nullable: true })
+  @Field(() => GraphQLJSONObject, { nullable: true })
   @ApiPropertyOptional({
     description: 'Additional metadata as JSON',
     example: { campaign: 'summer2024', source: 'web' }

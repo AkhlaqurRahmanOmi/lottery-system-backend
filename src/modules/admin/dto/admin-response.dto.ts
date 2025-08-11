@@ -25,15 +25,15 @@ export class AdminResponseDto extends OmitType(AdminBaseDto, []) {
   @ApiProperty()
   isActive: boolean;
 
-  @Field()
+  @Field(() => Date)
   @ApiProperty()
   createdAt: Date;
 
-  @Field()
+  @Field(() => Date)
   @ApiProperty()
   updatedAt: Date;
 
-  @Field({ nullable: true })
+  @Field(() => Date, { nullable: true })
   @ApiPropertyOptional()
   lastLogin?: Date | null;
 }

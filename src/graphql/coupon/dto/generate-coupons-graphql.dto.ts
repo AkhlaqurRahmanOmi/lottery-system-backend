@@ -1,6 +1,7 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsInt, IsOptional, IsString, Min, Max, IsJSON } from 'class-validator';
 import { GenerateCouponsDto } from '../../../modules/coupon/dto/generate-coupons.dto';
+import { GraphQLJSONObject } from 'graphql-type-json';
 
 /**
  * GraphQL-specific input type for generating coupon codes
@@ -51,7 +52,7 @@ export class GenerateCouponsGraphQLDto extends GenerateCouponsDto {
   @IsInt({ message: 'Created by must be an integer' })
   declare createdBy: number;
 
-  @Field({ 
+  @Field(() => GraphQLJSONObject, { 
     nullable: true,
     description: 'Additional metadata as JSON object'
   })

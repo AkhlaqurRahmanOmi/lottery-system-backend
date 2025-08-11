@@ -47,7 +47,7 @@ This document outlines the requirements for implementing a comprehensive Lottery
 
 ### Requirement 4: User Data Collection System
 
-**User Story:** As an end user, I want to redeem my coupon code and submit my information to receive a reward, so that I can participate in the lottery campaign.
+**User Story:** As an end user, I want to redeem my coupon code and submit my information to be eligible for rewards that admins will provide, so that I can participate in the lottery campaign.
 
 #### Acceptance Criteria
 
@@ -56,11 +56,11 @@ This document outlines the requirements for implementing a comprehensive Lottery
 3. WHEN collecting user data THEN the system SHALL require name, email, phone, address, and product experience
 4. WHEN validating email THEN the system SHALL ensure proper email format validation
 5. WHEN validating phone THEN the system SHALL ensure proper phone number format validation
-6. WHEN displaying rewards THEN the system SHALL show all active rewards in a dropdown selection
-7. WHEN requiring reward selection THEN the system SHALL mandate that user selects exactly one reward
-8. WHEN submitting the form THEN the system SHALL validate all required fields before processing
-9. WHEN successful submission THEN the system SHALL mark the coupon as redeemed and link it to the user submission
-10. WHEN preventing reuse THEN the system SHALL block any attempt to reuse an already redeemed coupon
+6. WHEN submitting the form THEN the system SHALL validate all required fields before processing
+7. WHEN successful submission THEN the system SHALL mark the coupon as redeemed and link it to the user submission
+8. WHEN preventing reuse THEN the system SHALL block any attempt to reuse an already redeemed coupon
+9. WHEN completing submission THEN the system SHALL confirm successful registration without promising specific rewards
+10. WHEN storing user data THEN the system SHALL maintain user information for admin review and reward distribution
 
 ### Requirement 5: Coupon Management System
 
@@ -89,17 +89,19 @@ This document outlines the requirements for implementing a comprehensive Lottery
 5. WHEN tracking rewards THEN the system SHALL show reward selection statistics and popularity
 6. WHEN monitoring activity THEN the system SHALL log all admin actions for audit purposes
 
-### Requirement 7: Rewards Management System
+### Requirement 7: Admin Reward Distribution System
 
-**User Story:** As an administrator, I want to manage available rewards that users can select, so that I can control what incentives are offered in campaigns.
+**User Story:** As an administrator, I want to create and manage reward accounts (like Spotify, Netflix, YouTube Premium) and distribute them to eligible users, so that I can provide actual rewards to lottery participants.
 
 #### Acceptance Criteria
 
-1. WHEN managing rewards THEN the system SHALL allow creating, updating, and deactivating rewards
-2. WHEN displaying rewards THEN the system SHALL show only active rewards to users during redemption
-3. WHEN ordering rewards THEN the system SHALL support custom display order for reward selection
-4. WHEN tracking selections THEN the system SHALL record which reward each user selected
-5. WHEN providing reward details THEN the system SHALL include name, description, and optional image for each reward
+1. WHEN creating reward accounts THEN the system SHALL allow admins to add reward account details (service name, account credentials, subscription duration)
+2. WHEN managing reward inventory THEN the system SHALL track available and distributed reward accounts
+3. WHEN reviewing submissions THEN the system SHALL allow admins to view all user submissions and select winners
+4. WHEN distributing rewards THEN the system SHALL allow admins to assign specific reward accounts to specific users
+5. WHEN tracking distribution THEN the system SHALL record which reward account was given to which user and when
+6. WHEN managing reward types THEN the system SHALL support different reward categories (streaming services, gift cards, etc.)
+7. WHEN handling reward status THEN the system SHALL track reward accounts as available, assigned, or expired
 
 ### Requirement 8: API Architecture
 
