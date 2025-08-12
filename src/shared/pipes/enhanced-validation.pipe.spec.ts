@@ -3,6 +3,8 @@ import { BadRequestException } from '@nestjs/common';
 import { IsString, IsNotEmpty, IsNumber, IsOptional, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { EnhancedValidationPipe } from './enhanced-validation.pipe';
+import { InputSanitizationService } from '../services/input-sanitization.service';
+import { SqlInjectionPreventionService } from '../services/sql-injection-prevention.service';
 
 class TestNestedDto {
   @IsString()
@@ -32,7 +34,11 @@ describe('EnhancedValidationPipe', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [EnhancedValidationPipe],
+      providers: [
+        EnhancedValidationPipe,
+        InputSanitizationService,
+        SqlInjectionPreventionService,
+      ],
     }).compile();
 
     pipe = module.get<EnhancedValidationPipe>(EnhancedValidationPipe);

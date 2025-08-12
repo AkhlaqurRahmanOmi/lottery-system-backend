@@ -6,21 +6,37 @@ import {
 } from '@nestjs/common';
 import { validate, ValidationError } from 'class-validator';
 import { plainToClass } from 'class-transformer';
+import { InputSanitizationService } from '../services/input-sanitization.service';
+import { SqlInjectionPreventionService } from '../services/sql-injection-prevention.service';
 
 /**
- * Enhanced validation pipe that provides detailed error messages
- * and helpful hints for resolution
+ * Enhanced validation pipe that provides detailed error messages,
+ * input sanitization, and security validation
+ * Requirements: 10.2, 10.3, 10.4, 10.6
  */
 @Injectable()
 export class EnhancedValidationPipe implements PipeTransform<any> {
+  constructor(
+    private readonly sanitizationService: InputSanitizationService,
+    private readonly sqlInjectionService: SqlInjectionPreventionService,
+  ) {}
+
   async transform(value: any, { metatype }: ArgumentMetadata) {
     if (!metatype || !this.toValidate(metatype)) {
       return value;
     }
 
-    const object = plainToClass(metatype, value, {
+    // Step 1: Security validation - check for XSS and SQL injection
+    this.performSecurityValidation(value);
+
+    // Step 2: Sanitize input data
+    const sanitizedValue = this.sanitizeInputData(value);
+
+    // Step 3: Transform and validate with class-validator
+    const object = plainToClass(metatype, sanitizedValue, {
       enableImplicitConversion: true, // Enable automatic type conversion
     });
+    
     const errors = await validate(object, {
       whitelist: true, // Strip properties that don't have decorators
       forbidNonWhitelisted: false, // Don't throw error for non-whitelisted properties, just strip them
@@ -137,9 +153,66 @@ export class EnhancedValidationPipe implements PipeTransform<any> {
       isValidLimit: '10, 25, 50, 100',
       isValidSortField: 'id, name, price, category, createdAt, updatedAt',
       isValidSortOrder: 'asc, desc',
+      // Lottery system specific examples
+      isValidCouponCode: 'ABC123XYZ9',
+      isValidUserName: 'John Doe',
+      isValidPhoneNumber: '+1-555-123-4567',
+      isValidAddress: '123 Main St, Anytown, ST 12345',
+      isValidProductExperience: 'I have been using this product for 6 months and found it very helpful...',
+      isValidServiceName: 'Netflix, Spotify, YouTube Premium',
+      isValidBatchName: 'Summer Campaign 2024',
+      isValidAdminUsername: 'admin_user',
+      isSecurePassword: 'MySecure123!',
     };
 
     return examples[constraint];
+  }
+
+  /**
+   * Perform security validation to detect XSS and SQL injection attempts
+   */
+  private performSecurityValidation(value: any): void {
+    if (!value || typeof value !== 'object') return;
+
+    const checkValue = (val: any, path: string = ''): void => {
+      if (typeof val === 'string') {
+        // Check for XSS patterns
+        if (this.sanitizationService.containsXSS(val)) {
+          throw new BadRequestException({
+            message: `Potential XSS attack detected in field: ${path}`,
+            error: 'Security validation failed',
+            statusCode: 400,
+          });
+        }
+
+        // Check for SQL injection patterns
+        if (this.sanitizationService.containsSQLInjection(val)) {
+          throw new BadRequestException({
+            message: `Potential SQL injection detected in field: ${path}`,
+            error: 'Security validation failed',
+            statusCode: 400,
+          });
+        }
+      } else if (Array.isArray(val)) {
+        val.forEach((item, index) => checkValue(item, `${path}[${index}]`));
+      } else if (val && typeof val === 'object') {
+        Object.entries(val).forEach(([key, nestedVal]) => 
+          checkValue(nestedVal, path ? `${path}.${key}` : key)
+        );
+      }
+    };
+
+    Object.entries(value).forEach(([key, val]) => checkValue(val, key));
+  }
+
+  /**
+   * Sanitize input data based on field types
+   */
+  private sanitizeInputData(value: any): any {
+    if (!value || typeof value !== 'object') return value;
+
+    // Use the sanitization service to clean the data
+    return this.sanitizationService.sanitizeSubmissionData(value);
   }
 }
 

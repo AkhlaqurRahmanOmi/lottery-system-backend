@@ -1,386 +1,377 @@
 import { validate } from 'class-validator';
+import { plainToClass } from 'class-transformer';
 import {
-  IsPositivePrice,
-  IsValidCategory,
-  IsValidProductName,
-  IsValidDescription,
-  IsValidPage,
-  IsValidLimit,
-  IsValidSortField,
-  IsValidSortOrder,
+  IsValidCouponCode,
+  IsValidUserName,
+  IsValidPhoneNumber,
+  IsValidAddress,
+  IsValidProductExperience,
+  IsValidServiceName,
+  IsValidBatchName,
+  IsValidAdminUsername,
+  IsSecurePassword,
+  IsSafeText,
 } from './validation.decorators';
 
-class TestProductDto {
-  @IsPositivePrice()
-  price: number;
-
-  @IsValidCategory()
-  category: string;
-
-  @IsValidProductName()
-  name: string;
-
-  @IsValidDescription()
-  description?: string;
+// Test DTOs
+class CouponCodeTestDto {
+  @IsValidCouponCode()
+  couponCode: string;
 }
 
-class TestQueryDto {
-  @IsValidPage()
-  page?: number;
+class UserNameTestDto {
+  @IsValidUserName()
+  name: string;
+}
 
-  @IsValidLimit()
-  limit?: number;
+class PhoneNumberTestDto {
+  @IsValidPhoneNumber()
+  phone: string;
+}
 
-  @IsValidSortField()
-  sortBy?: string;
+class AddressTestDto {
+  @IsValidAddress()
+  address: string;
+}
 
-  @IsValidSortOrder()
-  sortOrder?: string;
+class ProductExperienceTestDto {
+  @IsValidProductExperience()
+  experience: string;
+}
+
+class ServiceNameTestDto {
+  @IsValidServiceName()
+  serviceName: string;
+}
+
+class BatchNameTestDto {
+  @IsValidBatchName()
+  batchName?: string;
+}
+
+class AdminUsernameTestDto {
+  @IsValidAdminUsername()
+  username: string;
+}
+
+class SecurePasswordTestDto {
+  @IsSecurePassword()
+  password: string;
+}
+
+class SafeTextTestDto {
+  @IsSafeText()
+  text: string;
 }
 
 describe('Validation Decorators', () => {
-  describe('IsPositivePrice', () => {
-    it('should pass for valid positive prices', async () => {
-      const dto = new TestProductDto();
-      dto.price = 29.99;
-      dto.category = 'electronics';
-      dto.name = 'Test Product';
-
+  describe('IsValidCouponCode', () => {
+    it('should validate correct coupon codes', async () => {
+      const dto = plainToClass(CouponCodeTestDto, { couponCode: 'ABC123XYZ9' });
       const errors = await validate(dto);
-      const priceErrors = errors.filter(error => error.property === 'price');
-      expect(priceErrors).toHaveLength(0);
+      expect(errors).toHaveLength(0);
     });
 
-    it('should fail for negative prices', async () => {
-      const dto = new TestProductDto();
-      dto.price = -10;
-      dto.category = 'electronics';
-      dto.name = 'Test Product';
-
+    it('should reject codes with ambiguous characters', async () => {
+      const dto = plainToClass(CouponCodeTestDto, { couponCode: 'ABC0O1IL' });
       const errors = await validate(dto);
-      const priceErrors = errors.filter(error => error.property === 'price');
-      expect(priceErrors).toHaveLength(1);
-      expect(priceErrors[0].constraints).toHaveProperty('isPositivePrice');
+      expect(errors).toHaveLength(1);
     });
 
-    it('should fail for zero price', async () => {
-      const dto = new TestProductDto();
-      dto.price = 0;
-      dto.category = 'electronics';
-      dto.name = 'Test Product';
-
+    it('should reject codes that are too short', async () => {
+      const dto = plainToClass(CouponCodeTestDto, { couponCode: 'ABC123' });
       const errors = await validate(dto);
-      const priceErrors = errors.filter(error => error.property === 'price');
-      expect(priceErrors).toHaveLength(1);
+      expect(errors).toHaveLength(1);
     });
 
-    it('should fail for prices exceeding maximum', async () => {
-      const dto = new TestProductDto();
-      dto.price = 1000000;
-      dto.category = 'electronics';
-      dto.name = 'Test Product';
-
+    it('should reject codes that are too long', async () => {
+      const dto = plainToClass(CouponCodeTestDto, { couponCode: 'ABC123XYZ9TOOLONG' });
       const errors = await validate(dto);
-      const priceErrors = errors.filter(error => error.property === 'price');
-      expect(priceErrors).toHaveLength(1);
+      expect(errors).toHaveLength(1);
     });
 
-    it('should fail for non-numeric values', async () => {
-      const dto = new TestProductDto();
-      dto.price = 'invalid' as any;
-      dto.category = 'electronics';
-      dto.name = 'Test Product';
-
+    it('should reject codes with invalid characters', async () => {
+      const dto = plainToClass(CouponCodeTestDto, { couponCode: 'ABC-123' });
       const errors = await validate(dto);
-      const priceErrors = errors.filter(error => error.property === 'price');
-      expect(priceErrors).toHaveLength(1);
+      expect(errors).toHaveLength(1);
     });
   });
 
-  describe('IsValidCategory', () => {
-    it('should pass for valid categories', async () => {
-      const validCategories = ['electronics', 'clothing', 'books', 'home', 'sports'];
-      
-      for (const category of validCategories) {
-        const dto = new TestProductDto();
-        dto.price = 29.99;
-        dto.category = category;
-        dto.name = 'Test Product';
-
-        const errors = await validate(dto);
-        const categoryErrors = errors.filter(error => error.property === 'category');
-        expect(categoryErrors).toHaveLength(0);
-      }
+  describe('IsValidUserName', () => {
+    it('should validate normal names', async () => {
+      const dto = plainToClass(UserNameTestDto, { name: 'John Doe' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(0);
     });
 
-    it('should pass for valid categories in different cases', async () => {
-      const dto = new TestProductDto();
-      dto.price = 29.99;
-      dto.category = 'ELECTRONICS';
-      dto.name = 'Test Product';
-
+    it('should validate international names', async () => {
+      const dto = plainToClass(UserNameTestDto, { name: 'José María' });
       const errors = await validate(dto);
-      const categoryErrors = errors.filter(error => error.property === 'category');
-      expect(categoryErrors).toHaveLength(0);
+      expect(errors).toHaveLength(0);
     });
 
-    it('should fail for invalid categories', async () => {
-      const dto = new TestProductDto();
-      dto.price = 29.99;
-      dto.category = 'invalid-category';
-      dto.name = 'Test Product';
-
+    it('should reject names with XSS patterns', async () => {
+      const dto = plainToClass(UserNameTestDto, { name: '<script>alert("xss")</script>' });
       const errors = await validate(dto);
-      const categoryErrors = errors.filter(error => error.property === 'category');
-      expect(categoryErrors).toHaveLength(1);
-      expect(categoryErrors[0].constraints).toHaveProperty('isValidCategory');
+      expect(errors).toHaveLength(1);
     });
 
-    it('should fail for non-string values', async () => {
-      const dto = new TestProductDto();
-      dto.price = 29.99;
-      dto.category = 123 as any;
-      dto.name = 'Test Product';
-
+    it('should reject names that are too short', async () => {
+      const dto = plainToClass(UserNameTestDto, { name: 'A' });
       const errors = await validate(dto);
-      const categoryErrors = errors.filter(error => error.property === 'category');
-      expect(categoryErrors).toHaveLength(1);
+      expect(errors).toHaveLength(1);
+    });
+
+    it('should reject names with multiple consecutive spaces', async () => {
+      const dto = plainToClass(UserNameTestDto, { name: 'John  Doe' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(1);
     });
   });
 
-  describe('IsValidProductName', () => {
-    it('should pass for valid product names', async () => {
-      const validNames = [
-        'iPhone 15 Pro',
-        'Samsung Galaxy S24',
-        'Nike Air Max 90',
-        'Dell XPS 13',
-        "Men's Running Shoes",
-      ];
-
-      for (const name of validNames) {
-        const dto = new TestProductDto();
-        dto.price = 29.99;
-        dto.category = 'electronics';
-        dto.name = name;
-
-        const errors = await validate(dto);
-        const nameErrors = errors.filter(error => error.property === 'name');
-        expect(nameErrors).toHaveLength(0);
-      }
+  describe('IsValidPhoneNumber', () => {
+    it('should validate US phone numbers', async () => {
+      const dto = plainToClass(PhoneNumberTestDto, { phone: '+1-555-123-4567' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(0);
     });
 
-    it('should fail for names that are too short', async () => {
-      const dto = new TestProductDto();
-      dto.price = 29.99;
-      dto.category = 'electronics';
-      dto.name = 'A';
-
+    it('should validate international phone numbers', async () => {
+      const dto = plainToClass(PhoneNumberTestDto, { phone: '+44-20-7946-0958' });
       const errors = await validate(dto);
-      const nameErrors = errors.filter(error => error.property === 'name');
-      expect(nameErrors).toHaveLength(1);
+      expect(errors).toHaveLength(0);
     });
 
-    it('should fail for names that are too long', async () => {
-      const dto = new TestProductDto();
-      dto.price = 29.99;
-      dto.category = 'electronics';
-      dto.name = 'A'.repeat(101);
-
+    it('should validate simple digit format', async () => {
+      const dto = plainToClass(PhoneNumberTestDto, { phone: '5551234567' });
       const errors = await validate(dto);
-      const nameErrors = errors.filter(error => error.property === 'name');
-      expect(nameErrors).toHaveLength(1);
+      expect(errors).toHaveLength(0);
     });
 
-    it('should fail for names with invalid characters', async () => {
-      const dto = new TestProductDto();
-      dto.price = 29.99;
-      dto.category = 'electronics';
-      dto.name = 'Product@Name!';
-
+    it('should reject phone numbers that are too short', async () => {
+      const dto = plainToClass(PhoneNumberTestDto, { phone: '123456' });
       const errors = await validate(dto);
-      const nameErrors = errors.filter(error => error.property === 'name');
-      expect(nameErrors).toHaveLength(1);
+      expect(errors).toHaveLength(1);
     });
 
-    it('should fail for names with leading/trailing spaces', async () => {
-      const dto = new TestProductDto();
-      dto.price = 29.99;
-      dto.category = 'electronics';
-      dto.name = ' Product Name ';
-
+    it('should reject phone numbers with XSS patterns', async () => {
+      const dto = plainToClass(PhoneNumberTestDto, { phone: '<script>alert("xss")</script>' });
       const errors = await validate(dto);
-      const nameErrors = errors.filter(error => error.property === 'name');
-      expect(nameErrors).toHaveLength(1);
-    });
-
-    it('should fail for names with multiple consecutive spaces', async () => {
-      const dto = new TestProductDto();
-      dto.price = 29.99;
-      dto.category = 'electronics';
-      dto.name = 'Product  Name';
-
-      const errors = await validate(dto);
-      const nameErrors = errors.filter(error => error.property === 'name');
-      expect(nameErrors).toHaveLength(1);
+      expect(errors).toHaveLength(1);
     });
   });
 
-  describe('IsValidDescription', () => {
-    it('should pass for valid descriptions', async () => {
-      const dto = new TestProductDto();
-      dto.price = 29.99;
-      dto.category = 'electronics';
-      dto.name = 'Test Product';
-      dto.description = 'This is a valid product description.';
-
+  describe('IsValidAddress', () => {
+    it('should validate normal addresses', async () => {
+      const dto = plainToClass(AddressTestDto, { address: '123 Main St, Anytown, ST 12345' });
       const errors = await validate(dto);
-      const descriptionErrors = errors.filter(error => error.property === 'description');
-      expect(descriptionErrors).toHaveLength(0);
+      expect(errors).toHaveLength(0);
     });
 
-    it('should pass for undefined descriptions (optional field)', async () => {
-      const dto = new TestProductDto();
-      dto.price = 29.99;
-      dto.category = 'electronics';
-      dto.name = 'Test Product';
-      // description is undefined
-
+    it('should validate international addresses', async () => {
+      const dto = plainToClass(AddressTestDto, { address: '10 Downing Street, London SW1A 2AA, UK' });
       const errors = await validate(dto);
-      const descriptionErrors = errors.filter(error => error.property === 'description');
-      expect(descriptionErrors).toHaveLength(0);
+      expect(errors).toHaveLength(0);
     });
 
-    it('should fail for descriptions that are too long', async () => {
-      const dto = new TestProductDto();
-      dto.price = 29.99;
-      dto.category = 'electronics';
-      dto.name = 'Test Product';
-      dto.description = 'A'.repeat(1001);
-
+    it('should reject addresses that are too short', async () => {
+      const dto = plainToClass(AddressTestDto, { address: '123 Main' });
       const errors = await validate(dto);
-      const descriptionErrors = errors.filter(error => error.property === 'description');
-      expect(descriptionErrors).toHaveLength(1);
+      expect(errors).toHaveLength(1);
     });
 
-    it('should fail for empty string descriptions', async () => {
-      const dto = new TestProductDto();
-      dto.price = 29.99;
-      dto.category = 'electronics';
-      dto.name = 'Test Product';
-      dto.description = '   ';
-
+    it('should reject addresses with XSS patterns', async () => {
+      const dto = plainToClass(AddressTestDto, { address: '<script>alert("xss")</script>' });
       const errors = await validate(dto);
-      const descriptionErrors = errors.filter(error => error.property === 'description');
-      expect(descriptionErrors).toHaveLength(1);
+      expect(errors).toHaveLength(1);
     });
   });
 
-  describe('Query Parameter Validators', () => {
-    describe('IsValidPage', () => {
-      it('should pass for valid page numbers', async () => {
-        const dto = new TestQueryDto();
-        dto.page = 1;
-
-        const errors = await validate(dto);
-        const pageErrors = errors.filter(error => error.property === 'page');
-        expect(pageErrors).toHaveLength(0);
-      });
-
-      it('should pass for undefined page (optional)', async () => {
-        const dto = new TestQueryDto();
-        // page is undefined
-
-        const errors = await validate(dto);
-        const pageErrors = errors.filter(error => error.property === 'page');
-        expect(pageErrors).toHaveLength(0);
-      });
-
-      it('should fail for page numbers less than 1', async () => {
-        const dto = new TestQueryDto();
-        dto.page = 0;
-
-        const errors = await validate(dto);
-        const pageErrors = errors.filter(error => error.property === 'page');
-        expect(pageErrors).toHaveLength(1);
-      });
-
-      it('should fail for page numbers greater than 10000', async () => {
-        const dto = new TestQueryDto();
-        dto.page = 10001;
-
-        const errors = await validate(dto);
-        const pageErrors = errors.filter(error => error.property === 'page');
-        expect(pageErrors).toHaveLength(1);
-      });
+  describe('IsValidProductExperience', () => {
+    it('should validate meaningful product experience', async () => {
+      const experience = 'I have been using this product for 6 months and found it very helpful for my daily tasks.';
+      const dto = plainToClass(ProductExperienceTestDto, { experience });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(0);
     });
 
-    describe('IsValidLimit', () => {
-      it('should pass for valid limit values', async () => {
-        const dto = new TestQueryDto();
-        dto.limit = 25;
-
-        const errors = await validate(dto);
-        const limitErrors = errors.filter(error => error.property === 'limit');
-        expect(limitErrors).toHaveLength(0);
-      });
-
-      it('should fail for limit values greater than 100', async () => {
-        const dto = new TestQueryDto();
-        dto.limit = 101;
-
-        const errors = await validate(dto);
-        const limitErrors = errors.filter(error => error.property === 'limit');
-        expect(limitErrors).toHaveLength(1);
-      });
+    it('should reject experience that is too short', async () => {
+      const dto = plainToClass(ProductExperienceTestDto, { experience: 'Good' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(1);
     });
 
-    describe('IsValidSortField', () => {
-      it('should pass for valid sort fields', async () => {
-        const validFields = ['id', 'name', 'price', 'category', 'createdAt', 'updatedAt'];
-        
-        for (const field of validFields) {
-          const dto = new TestQueryDto();
-          dto.sortBy = field;
-
-          const errors = await validate(dto);
-          const sortErrors = errors.filter(error => error.property === 'sortBy');
-          expect(sortErrors).toHaveLength(0);
-        }
-      });
-
-      it('should fail for invalid sort fields', async () => {
-        const dto = new TestQueryDto();
-        dto.sortBy = 'invalidField';
-
-        const errors = await validate(dto);
-        const sortErrors = errors.filter(error => error.property === 'sortBy');
-        expect(sortErrors).toHaveLength(1);
-      });
+    it('should reject experience with XSS patterns', async () => {
+      const experience = '<script>alert("xss")</script>This product is great!';
+      const dto = plainToClass(ProductExperienceTestDto, { experience });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(1);
     });
 
-    describe('IsValidSortOrder', () => {
-      it('should pass for valid sort orders', async () => {
-        const validOrders = ['asc', 'desc', 'ASC', 'DESC'];
-        
-        for (const order of validOrders) {
-          const dto = new TestQueryDto();
-          dto.sortOrder = order;
+    it('should reject experience with only punctuation', async () => {
+      const dto = plainToClass(ProductExperienceTestDto, { experience: '!!!!!!!!!!!!' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(1);
+    });
+  });
 
-          const errors = await validate(dto);
-          const orderErrors = errors.filter(error => error.property === 'sortOrder');
-          expect(orderErrors).toHaveLength(0);
-        }
-      });
+  describe('IsValidServiceName', () => {
+    it('should validate known service names', async () => {
+      const dto = plainToClass(ServiceNameTestDto, { serviceName: 'netflix' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(0);
+    });
 
-      it('should fail for invalid sort orders', async () => {
-        const dto = new TestQueryDto();
-        dto.sortOrder = 'invalid';
+    it('should validate custom service names', async () => {
+      const dto = plainToClass(ServiceNameTestDto, { serviceName: 'Custom Streaming Service' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(0);
+    });
 
-        const errors = await validate(dto);
-        const orderErrors = errors.filter(error => error.property === 'sortOrder');
-        expect(orderErrors).toHaveLength(1);
-      });
+    it('should reject service names with XSS patterns', async () => {
+      const dto = plainToClass(ServiceNameTestDto, { serviceName: '<script>alert("xss")</script>' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(1);
+    });
+
+    it('should reject service names that are too short', async () => {
+      const dto = plainToClass(ServiceNameTestDto, { serviceName: 'A' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(1);
+    });
+  });
+
+  describe('IsValidBatchName', () => {
+    it('should validate normal batch names', async () => {
+      const dto = plainToClass(BatchNameTestDto, { batchName: 'Summer Campaign 2024' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(0);
+    });
+
+    it('should allow undefined batch names (optional)', async () => {
+      const dto = plainToClass(BatchNameTestDto, {});
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(0);
+    });
+
+    it('should reject batch names with XSS patterns', async () => {
+      const dto = plainToClass(BatchNameTestDto, { batchName: '<script>alert("xss")</script>' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(1);
+    });
+
+    it('should reject batch names that are too short', async () => {
+      const dto = plainToClass(BatchNameTestDto, { batchName: 'AB' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(1);
+    });
+  });
+
+  describe('IsValidAdminUsername', () => {
+    it('should validate normal admin usernames', async () => {
+      const dto = plainToClass(AdminUsernameTestDto, { username: 'admin_user' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(0);
+    });
+
+    it('should validate usernames with hyphens', async () => {
+      const dto = plainToClass(AdminUsernameTestDto, { username: 'admin-user' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(0);
+    });
+
+    it('should reject usernames that don\'t start with a letter', async () => {
+      const dto = plainToClass(AdminUsernameTestDto, { username: '123admin' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(1);
+    });
+
+    it('should reject usernames with spaces', async () => {
+      const dto = plainToClass(AdminUsernameTestDto, { username: 'admin user' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(1);
+    });
+
+    it('should reject usernames with SQL injection patterns', async () => {
+      const dto = plainToClass(AdminUsernameTestDto, { username: 'admin; DROP TABLE users' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(1);
+    });
+  });
+
+  describe('IsSecurePassword', () => {
+    it('should validate secure passwords', async () => {
+      const dto = plainToClass(SecurePasswordTestDto, { password: 'MySecure123!' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(0);
+    });
+
+    it('should reject passwords without uppercase', async () => {
+      const dto = plainToClass(SecurePasswordTestDto, { password: 'mysecure123!' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(1);
+    });
+
+    it('should reject passwords without lowercase', async () => {
+      const dto = plainToClass(SecurePasswordTestDto, { password: 'MYSECURE123!' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(1);
+    });
+
+    it('should reject passwords without numbers', async () => {
+      const dto = plainToClass(SecurePasswordTestDto, { password: 'MySecurePass!' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(1);
+    });
+
+    it('should reject passwords without special characters', async () => {
+      const dto = plainToClass(SecurePasswordTestDto, { password: 'MySecure123' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(1);
+    });
+
+    it('should reject weak passwords', async () => {
+      const dto = plainToClass(SecurePasswordTestDto, { password: 'Password123!' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(1);
+    });
+
+    it('should reject passwords that are too short', async () => {
+      const dto = plainToClass(SecurePasswordTestDto, { password: 'Sec1!' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(1);
+    });
+  });
+
+  describe('IsSafeText', () => {
+    it('should validate safe text', async () => {
+      const dto = plainToClass(SafeTextTestDto, { text: 'This is safe text content.' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(0);
+    });
+
+    it('should reject text with script tags', async () => {
+      const dto = plainToClass(SafeTextTestDto, { text: '<script>alert("xss")</script>' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(1);
+    });
+
+    it('should reject text with JavaScript protocols', async () => {
+      const dto = plainToClass(SafeTextTestDto, { text: 'javascript:alert("xss")' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(1);
+    });
+
+    it('should reject text with event handlers', async () => {
+      const dto = plainToClass(SafeTextTestDto, { text: 'onclick=alert("xss")' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(1);
+    });
+
+    it('should reject text with multiple SQL injection patterns', async () => {
+      const dto = plainToClass(SafeTextTestDto, { text: "'; DROP TABLE users; SELECT * FROM passwords; --" });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(1);
     });
   });
 });

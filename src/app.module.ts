@@ -34,9 +34,11 @@ import { CacheService } from './shared/services/cache.service';
 import { PerformanceMonitorService } from './shared/services/performance-monitor.service';
 import { QueryOptimizerService } from './shared/services/query-optimizer.service';
 import { LoggingConfigService } from './shared/services/logging-config.service';
+import { ValidationModule } from './shared/validation/validation.module';
 
 @Module({
   imports: [
+    ValidationModule,
     MonitoringModule,
     AuthRestModule,
     AdminRestModule,

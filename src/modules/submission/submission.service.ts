@@ -366,7 +366,8 @@ export class SubmissionService {
   }
 
   /**
-   * Sanitize string input to prevent XSS
+   * Sanitize string input to prevent XSS (deprecated - use InputSanitizationService)
+   * @deprecated Use InputSanitizationService.sanitizeText() instead
    */
   private sanitizeString(input: string): string {
     if (!input) return '';
