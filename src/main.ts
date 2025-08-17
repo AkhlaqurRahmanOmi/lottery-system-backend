@@ -34,6 +34,12 @@ async function bootstrap() {
     }),
   );
 
+  app.enableCors({
+    origin: ['http://localhost:4001', 'https://your-production-domain.com'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
+  });
+
   // Setup Swagger/OpenAPI documentation
   setupSwagger(app);
 
