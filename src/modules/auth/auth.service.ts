@@ -14,7 +14,7 @@ import type { Admin } from '@prisma/client';
 @Injectable()
 export class AuthService {
   private readonly saltRounds = 12;
-  private readonly refreshTokenSecret = process.env.JWT_REFRESH_SECRET || 'lottery-refresh-secret';
+  private readonly refreshTokenSecret = process.env.JWT_REFRESH_SECRET || 'lottery-system-secret';
   private readonly refreshTokenExpiresIn = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
 
   constructor(
